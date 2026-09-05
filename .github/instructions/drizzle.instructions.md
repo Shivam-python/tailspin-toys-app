@@ -45,11 +45,28 @@ import { asc, count, eq } from 'drizzle-orm';
 import type { Database } from './db';
 import { games } from '../../db/schema';
 
+/**
+ * Retrieves all game IDs from the database, ordered alphabetically by title.
+ * 
+ * @param db - The database client instance (injectable for testing)
+ * @returns An array of game IDs ordered by title
+ */
 export async function getAllGameIds(db: Database): Promise<number[]> {
   const rows = await db.select({ id: games.id }).from(games).orderBy(asc(games.title));
   return rows.map((r) => r.id);
 }
 ```
+
+### TSDoc/JSDoc Requirement
+
+Every exported function in `db/` and `src/lib/` **must** have a JSDoc comment documenting:
+- A brief description of the function's purpose
+- `@param` tags for each parameter (including the injectable `db` argument and what it does)
+- `@returns` tag describing the return value
+
+This ensures the testing pattern stays clear and the API is self-documenting.
+
+### Best Practices
 
 - Always `order by` a stable column (title) so static builds are deterministic.
 - Map raw rows to the app-facing `Game`/`Publisher`/`Category` types in one place; don't leak Drizzle row shapes into components.
@@ -66,6 +83,29 @@ Unit-test transforms directly and helpers against `createTestDatabase()`. See [`
 ## Node.js requirement
 
 Node.js 22.13 or later is required because the data layer uses the built-in `node:sqlite` module without an experimental flag. Do not introduce third-party SQLite drivers that ship platform-specific binaries.
+
+## Comments and Documentation
+
+Follow the project's commenting philosophy: **comment intent and decisions, not mechanics**.
+
+- **Do** explain *why* a piece of code exists, the reasoning behind a non-obvious decision, or a workaround for a known limitation.
+- **Don't** restate what the code already clearly says (e.g., avoid comments like `// increment i` above `i++`).
+- Keep comments current as you change the code — treat outdated comments as bugs.
+
+Example:
+```ts
+// ✓ Good: explains the decision
+// We use a stable hash of the title because Math.random() would cause
+// different ratings on every build, breaking static output reproducibility.
+export function ratingFromTitle(title: string): number {
+  const hash = simpleHash(title);
+  return 3.0 + ((hash % 200) / 100); // 3.0–5.0
+}
+
+// ✗ Avoid: restates the code
+// Get the hash of the title
+const hash = simpleHash(title);
+```
 
 ## Type checking
 
