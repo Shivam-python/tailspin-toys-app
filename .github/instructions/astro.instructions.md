@@ -32,6 +32,29 @@ const games = await getAllGames(getDatabase());
 </Layout>
 ```
 
+### Component Props Documentation
+
+Every reusable `.astro` component **must** document its `Props` interface with JSDoc comments:
+
+```astro
+---
+interface Props {
+  /** The game to display in the card. */
+  game: Game;
+  /** Optional CSS class to apply to the card container. */
+  class?: string;
+}
+
+const { game, class: cardClass } = Astro.props;
+---
+
+<article class={`game-card ${cardClass}`} data-testid={`game-card-${game.id}`}>
+  <!-- card content -->
+</article>
+```
+
+The documentation makes the component API clear at a glance, especially when the component is imported or used in other parts of the project.
+
 ## Layouts
 
 - Create reusable layout components in `src/layouts/`
@@ -120,3 +143,13 @@ There is no Svelte/React layer. When a page genuinely needs client behaviour, ad
 - Minimize client-side JavaScript — the default is zero JS shipped
 - Import and use global CSS styles from layouts
 - Always include a `data-testid` on interactive elements (see `ui.instructions.md`)
+
+## Comments and Documentation
+
+Follow the project's commenting philosophy: **comment intent and decisions, not mechanics**.
+
+- **Do** explain *why* a piece of code exists, the reasoning behind a non-obvious decision, or a workaround for a known limitation.
+- **Don't** restate what the code already clearly says (e.g., avoid comments like `<!-- display the game title -->` above a heading element).
+- Keep comments current as you change the code — treat outdated comments as bugs.
+- Document component APIs via JSDoc on the `Props` interface so the contract is clear.
+- Document the purpose, parameters, and return values of data-access helpers (see [`drizzle.instructions.md`](drizzle.instructions.md)).

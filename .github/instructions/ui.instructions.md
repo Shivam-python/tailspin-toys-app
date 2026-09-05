@@ -51,6 +51,12 @@ Refer to technology-specific instruction files:
 - Use props for configuration, not duplication
 - Document component APIs with TypeScript types
 
+### Code Quality
+
+- Follow the project's commenting and documentation standards (see [`comments-and-types.instructions.md`](comments-and-types.instructions.md))
+- Use explicit TypeScript types throughout
+- Run ESLint before committing (`npm run lint`)
+
 ## Development Workflow
 
 1. **Choose the right tool**: 
