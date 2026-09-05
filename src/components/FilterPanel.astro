@@ -1,0 +1,101 @@
+---
+import type { Category, Publisher } from '../types/game';
+import Button from './Button.astro';
+
+interface Props {
+    /** Available categories to filter by. */
+    categories: Category[];
+    /** Available publishers to filter by. */
+    publishers: Publisher[];
+    /** Currently selected category IDs (from URL query params). */
+    selectedCategoryIds: number[];
+    /** Currently selected publisher IDs (from URL query params). */
+    selectedPublisherIds: number[];
+}
+
+const { categories, publishers, selectedCategoryIds, selectedPublisherIds } = Astro.props;
+---
+
+<div class="mb-8 p-6 bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50" data-testid="filter-panel">
+    <form
+        action=""
+        method="GET"
+        class="space-y-6"
+        data-testid="filter-form"
+    >
+        {categories.length > 0 && (
+            <fieldset class="space-y-3" data-testid="category-filter">
+                <legend class="text-sm font-semibold text-slate-100 block mb-3">
+                    Filter by Category
+                </legend>
+                <div class="space-y-2">
+                    {categories.map((category) => (
+                        <label
+                            class="flex items-center gap-2 cursor-pointer group"
+                            data-testid={`category-label-${category.id}`}
+                        >
+                            <input
+                                type="checkbox"
+                                name="category"
+                                value={category.id}
+                                checked={selectedCategoryIds.includes(category.id)}
+                                class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer accent-blue-600"
+                                data-testid={`category-checkbox-${category.id}`}
+                            />
+                            <span class="text-slate-300 group-hover:text-slate-200 transition-colors text-sm">
+                                {category.name}
+                            </span>
+                        </label>
+                    ))}
+                </div>
+            </fieldset>
+        )}
+
+        {publishers.length > 0 && (
+            <fieldset class="space-y-3" data-testid="publisher-filter">
+                <legend class="text-sm font-semibold text-slate-100 block mb-3">
+                    Filter by Publisher
+                </legend>
+                <div class="space-y-2">
+                    {publishers.map((publisher) => (
+                        <label
+                            class="flex items-center gap-2 cursor-pointer group"
+                            data-testid={`publisher-label-${publisher.id}`}
+                        >
+                            <input
+                                type="checkbox"
+                                name="publisher"
+                                value={publisher.id}
+                                checked={selectedPublisherIds.includes(publisher.id)}
+                                class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-0 cursor-pointer accent-purple-600"
+                                data-testid={`publisher-checkbox-${publisher.id}`}
+                            />
+                            <span class="text-slate-300 group-hover:text-slate-200 transition-colors text-sm">
+                                {publisher.name}
+                            </span>
+                        </label>
+                    ))}
+                </div>
+            </fieldset>
+        )}
+
+        <div class="flex gap-2 pt-2">
+            <Button
+                type="submit"
+                size="sm"
+                data-testid="apply-filters-button"
+            >
+                Apply Filters
+            </Button>
+            {(selectedCategoryIds.length > 0 || selectedPublisherIds.length > 0) && (
+                <a
+                    href="."
+                    class="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:outline-none px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 text-slate-100"
+                    data-testid="clear-filters-button"
+                >
+                    Clear Filters
+                </a>
+            )}
+        </div>
+    </form>
+</div>
