@@ -3,12 +3,29 @@ import Layout from '../layouts/Layout.astro';
 import GameCard from '../components/GameCard.astro';
 import PageHero from '../components/PageHero.astro';
 import EmptyState from '../components/EmptyState.astro';
+import FilterPanel from '../components/FilterPanel.astro';
 import { getDatabase } from '../lib/db';
-import { getAllGames } from '../lib/games';
+import { getGamesByFilters, getAvailableCategories, getAvailablePublishers } from '../lib/games';
 
 export const prerender = true;
 
-const games = await getAllGames(getDatabase());
+const db = getDatabase();
+
+// Extract filter IDs from URL query parameters
+const url = new URL(Astro.request.url);
+const categoryParams = url.searchParams.getAll('category');
+const publisherParams = url.searchParams.getAll('publisher');
+
+// Parse as numbers and filter out invalid values
+const categoryIds = categoryParams.map(Number).filter((id) => !Number.isNaN(id));
+const publisherIds = publisherParams.map(Number).filter((id) => !Number.isNaN(id));
+
+// Fetch filtered games and available filter options
+const [games, categories, publishers] = await Promise.all([
+    getGamesByFilters(db, categoryIds.length > 0 ? categoryIds : undefined, publisherIds.length > 0 ? publisherIds : undefined),
+    getAvailableCategories(db),
+    getAvailablePublishers(db),
+]);
 ---
 
 <Layout title="Tailspin Toys - Crowdfunding your new favorite game!">
@@ -18,11 +35,20 @@ const games = await getAllGames(getDatabase());
       subtitle="Find your next game! And maybe even back one! Explore our collection!"
     />
 
+    <FilterPanel
+      categories={categories}
+      publishers={publishers}
+      selectedCategoryIds={categoryIds}
+      selectedPublisherIds={publisherIds}
+    />
+
     <div>
-      <h2 class="text-2xl font-medium mb-6 text-slate-100">Featured Games</h2>
+      <h2 class="text-2xl font-medium mb-6 text-slate-100">
+        {games.length === 0 ? 'No Games Found' : 'Featured Games'}
+      </h2>
 
       {games.length === 0 ? (
-        <EmptyState text="No games available at the moment." />
+        <EmptyState text="No games match your selected filters. Try adjusting your choices." />
       ) : (
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="games-grid">
           {games.map((game) => <GameCard game={game} />)}

@@ -42,6 +42,20 @@ npm run build      # prebuild migrates + seeds, then builds the static site
 npm run preview
 ```
 
+## Features
+
+### Game Filtering
+
+Users can filter the game listing by category and publisher using URL query parameters. Filters are combined with AND logic — only games matching all selected criteria are displayed. The filter state is preserved in the URL, allowing users to bookmark and share filtered views.
+
+**Example filter URLs:**
+- `/?category=1` — Show games in category 1
+- `/?publisher=2` — Show games from publisher 2
+- `/?category=1&publisher=2` — Show games in category 1 from publisher 2
+- `/?category=1&category=3` — Show games in either category 1 or 3 (OR logic within categories)
+
+The filter panel on the home page provides a user-friendly interface to select categories and publishers, with keyboard navigation support and accessibility features (ARIA labels, visible focus states, semantic HTML).
+
 ## Database
 
 The SQLite database is built from `db/games.csv` — there is no live data to migrate.
